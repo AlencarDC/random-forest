@@ -2,7 +2,8 @@ import numpy as np
 from numpy import ndarray
 from collections import Counter
 from statistics import mode
-from typing import Union, List
+from typing import Union, List, Dict
+from enum import Enum
 
 data = np.array([
   ["Ensolarado","Quente","Alta","Falso","Nao"],
@@ -79,21 +80,27 @@ class DecisionNode:
   def add_child(self, child: Union['DecisionNode', DecisionLeaf]):
     self.children.append(child)
 
+class FeatureType(Enum):
+  NUMERIC = 1
+  CATEGORICAL = 2
+
 class DecisionTree:
   def __init__(self):
-    self.headers: List[str] = []
+    self.features: List[str] = []
+    self.feature_type: Dict[str, FeatureType] = {}
     self._x: ndarray = []
     self._y: List = []
     self._root: Union[DecisionNode, DecisionLeaf] = None
 
-  def build(self, x: ndarray, y: List, headers: List[str]):
+  def build(self, x: ndarray, y: List, features: Dict[str, FeatureType]):
     self._x = x
     self._y = y
-    self.headers = headers
+    self.feature_type = features
+    self.features = list(features.keys())
 
-    self._root = self._build(self._x, self._y, list(headers), "")
+    self._root = self._build(self._x, self._y, list(self.features), "")
 
-  def _build(self, x , y, headers: List, question):
+  def _build(self, x , y, features: List, question):
     # All examples are of the same class
     if (entropy(y) == 0.0):
       return DecisionLeaf(y[0], len(y), question)
@@ -106,8 +113,8 @@ class DecisionTree:
     best_col, best_gain = find_best_feature(x, y)
 
     # Give best feature to node
-    node: DecisionNode = DecisionNode(best_col, headers[best_col], best_gain, question)
-    headers.remove(headers[best_col])
+    node: DecisionNode = DecisionNode(best_col, features[best_col], best_gain, question)
+    features.remove(features[best_col])
 
     # Split data for the possible values of the best feature
     possible_values = unique_values(x[:, best_col])
@@ -120,7 +127,7 @@ class DecisionTree:
         #node.add_child(DecisionLeaf(most_frequent(new_y), len(new_y), value))
         return DecisionLeaf(most_frequent(new_y), len(new_y), value)
       else:
-        node.add_child(self._build(new_x, new_y, list(headers), value))
+        node.add_child(self._build(new_x, new_y, list(features), value))
 
     return node
 
@@ -129,7 +136,13 @@ class DecisionTree:
 x = data[:,0:4]
 y = data[:, 4]
 tree = DecisionTree()
-tree.build(x, y, ["Tempo", "Temperatura", "Umidade", "Ventoso"])
+features_and_types = {
+  "Tempo": FeatureType.CATEGORICAL,
+  "Temperatura": FeatureType.CATEGORICAL,
+  "Umidade": FeatureType.CATEGORICAL,
+  "Ventoso": FeatureType.CATEGORICAL
+}
+tree.build(x, y, features_and_types)
 print(len(tree._root.children))
 
 
@@ -172,3 +185,4 @@ def plot_node(node: Union[DecisionNode, DecisionLeaf], num: int, node_style: str
 
 #print_tree(tree._root, "")
 plot_tree(tree)
+
