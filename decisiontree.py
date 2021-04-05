@@ -103,11 +103,7 @@ class DecisionTree:
       return DecisionLeaf(most_frequent(y), len(y), question)
 
     # Get best feature to split
-    print("\n\n"+question)
-    print(x)
     best_col, best_gain = find_best_feature(x, y)
-    print(best_col, headers)
-    #print("Best feature " + str(best_col) + ":" + str(headers[best_col]) + " with " + str(best_gain))
 
     # Give best feature to node
     node: DecisionNode = DecisionNode(best_col, headers[best_col], best_gain, question)
@@ -146,4 +142,33 @@ def print_tree(node, spacing):
   if (isinstance(node, DecisionLeaf) == True):
     print(spacing + "+" + node.value + "[" + node.feature + "]")
 
-print_tree(tree._root, "")
+def plot_tree(tree: DecisionTree):
+
+  node_style = "shape=box,style=bold,"
+  graph = "digraph G {\n"
+  new_nodes, _ = plot_node(tree._root, 0, node_style)
+  graph += new_nodes
+  graph += "}"
+  print(graph)
+
+def plot_node(node: Union[DecisionNode, DecisionLeaf], num: int, node_style: str) -> (str, int):
+  if (isinstance(node, DecisionLeaf) == True):
+    label = node.value + "\nCount: " + str(node.count)
+  else:
+    label = "pai == " + node.feature + "\n" + node.label + "\nInfo Gain: " + str(node.gain)
+
+  dot_node = "N"+ str(num) +" [" + node_style + "label=\"" + label + "\"];\n"
+
+  node_id = num
+  if (isinstance(node, DecisionNode) == True):
+    for idx, child in enumerate(node.children):
+      num += 1
+      dot_node += "N" + str(node_id) + " -> N" + str(num) + ";\n"
+      dot, num = plot_node(child, num, node_style)
+      dot_node += dot
+
+  return dot_node, num
+
+
+#print_tree(tree._root, "")
+plot_tree(tree)
