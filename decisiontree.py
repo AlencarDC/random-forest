@@ -2,7 +2,7 @@ import numpy as np
 from numpy import ndarray
 from collections import Counter
 from statistics import mode
-from typing import Union
+from typing import Union, List
 
 data = np.array([
   ["Ensolarado","Quente","Alta","Falso","Nao"],
@@ -21,7 +21,7 @@ data = np.array([
   ["Chuvoso","Amena","Alta","Verdadeiro","Nao"]
 ])
 
-def entropy(rows: list) -> float:
+def entropy(rows: List) -> float:
   counter = Counter(rows)
   total = len(rows)
 
@@ -30,11 +30,13 @@ def entropy(rows: list) -> float:
     result -= counter[label]/total  * np.log2(counter[label]/total)
   return result
 
+def unique_values(my_list: List) -> List:
+  return list(dict.fromkeys(my_list))
 
-def info_gain(rows: list, targets: list) -> float:
+def info_gain(rows: List, targets: List) -> float:
   total = len(rows)
 
-  unique_values = set(rows)
+  #unique_values = unique_values(rows)
   target_per_value = {val: [] for val in rows}
 
   for index, value in enumerate(rows):
@@ -47,16 +49,17 @@ def info_gain(rows: list, targets: list) -> float:
   return entropy(targets) - result
 
 
-def find_best_feature(data: ndarray, target: list) -> int:
+def find_best_feature(data: ndarray, target: List) -> int:
   gains = []
 
   num_features = len(data[0])
   for col in range(0, num_features):
     gains.append(info_gain(data[:, col], target))
+  print(gains)
+  best_gain = max(gains)
+  return gains.index(best_gain), best_gain
 
-  return gains.index(max(gains))
-
-def most_frequent(target: list):
+def most_frequent(target: List):
   return mode(target)
 
 class DecisionLeaf:
@@ -66,30 +69,31 @@ class DecisionLeaf:
     self.feature = feature
 
 class DecisionNode:
-  def __init__(self, col: int, label: str, feature: str):
+  def __init__(self, col: int, label: str, gain: float, feature: str):
     self.col = col
     self.label = label
+    self.gain = gain
     self.feature = feature
-    self.children: list[Union['DecisionNode', DecisionLeaf]] = []
+    self.children: List[Union['DecisionNode', DecisionLeaf]] = []
 
   def add_child(self, child: Union['DecisionNode', DecisionLeaf]):
     self.children.append(child)
 
 class DecisionTree:
   def __init__(self):
-    self.headers: list[str] = []
+    self.headers: List[str] = []
     self._x: ndarray = []
-    self._y: list = []
+    self._y: List = []
     self._root: Union[DecisionNode, DecisionLeaf] = None
 
-  def build(self, x: ndarray, y: list, headers: list[str]):
+  def build(self, x: ndarray, y: List, headers: List[str]):
     self._x = x
     self._y = y
     self.headers = headers
 
-    self._root = self._build(self._x, self._y, "")
+    self._root = self._build(self._x, self._y, list(headers), "")
 
-  def _build(self, x , y, question):
+  def _build(self, x , y, headers: List, question):
     # All examples are of the same class
     if (entropy(y) == 0.0):
       return DecisionLeaf(y[0], len(y), question)
@@ -99,23 +103,28 @@ class DecisionTree:
       return DecisionLeaf(most_frequent(y), len(y), question)
 
     # Get best feature to split
-    best_col = find_best_feature(x, y)
+    print("\n\n"+question)
+    print(x)
+    best_col, best_gain = find_best_feature(x, y)
+    print(best_col, headers)
+    #print("Best feature " + str(best_col) + ":" + str(headers[best_col]) + " with " + str(best_gain))
 
     # Give best feature to node
-    node: DecisionNode = DecisionNode(best_col, self.headers[best_col], question)
+    node: DecisionNode = DecisionNode(best_col, headers[best_col], best_gain, question)
+    headers.remove(headers[best_col])
 
     # Split data for the possible values of the best feature
-    possible_values = set(x[:, best_col])
+    possible_values = unique_values(x[:, best_col])
     for value in possible_values:
       value_idxs = np.where(x[:, best_col] == value)
       new_x = x[value_idxs] # Best best feature row
-      new_x = np.delete(new_x, best_col, 1) # Remove feature column
+      new_x = np.delete(new_x, best_col, axis=1) # Remove feature column
       new_y = y[value_idxs]
       if (len(data) == 0):
         #node.add_child(DecisionLeaf(most_frequent(new_y), len(new_y), value))
         return DecisionLeaf(most_frequent(new_y), len(new_y), value)
       else:
-        node.add_child(self._build(new_x, new_y, value))
+        node.add_child(self._build(new_x, new_y, list(headers), value))
 
     return node
 
@@ -126,9 +135,11 @@ y = data[:, 4]
 tree = DecisionTree()
 tree.build(x, y, ["Tempo", "Temperatura", "Umidade", "Ventoso"])
 print(len(tree._root.children))
+
+
 def print_tree(node, spacing):
   if (isinstance(node, DecisionNode) == True):
-    print(spacing + "->" + node.label + "[" + node.feature + "]")
+    print(spacing + "->" + node.label + "[" + node.feature + "] with " + str(node.gain))
     for child in node.children:
       print_tree(child, spacing + "  ")
 
@@ -136,24 +147,3 @@ def print_tree(node, spacing):
     print(spacing + "+" + node.value + "[" + node.feature + "]")
 
 print_tree(tree._root, "")
-# result = entropy(data[:,4])
-# print(result)
-
-# for i in range(0,len(data[0])-1):
-#   result = info_gain(data[:, i], data[:, 4])
-#   print(result)
-
-# best_col = find_best_feature(x, y)
-
-# possible_values = set(x[:, best_col])
-# for value in possible_values:
-#   print(value)
-#   value_idxs = np.where(x[:, best_col] == value)
-#   new_x = x[value_idxs] # Best best feature row
-#   new_x = np.delete(new_x, best_col, 1) # Remove feature column
-#   new_y = y[value_idxs]
-
-#   print(new_x)
-#   print(new_y)
-#   print(entropy(new_y))
-#   print(info_gain(new_x, new_y))
