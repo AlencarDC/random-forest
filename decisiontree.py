@@ -4,6 +4,7 @@ from collections import Counter
 from statistics import mode, mean
 from typing import Union, List, Dict, Tuple
 from enum import Enum
+import random
 
 data = np.array([
   ["Ensolarado","Quente","Alta","Falso","Nao"],
@@ -91,11 +92,13 @@ def info_gain_numerical(rows: List, targets: List) -> float:
   return entropy(targets) - result
 
 # Assumes that categorical features are string values and numerical features are int or float
-def find_best_feature(data: ndarray, target: List) -> (int, float):
+def find_best_feature(data: ndarray, target: List, m:int) -> (int, float):
   gains = []
 
   num_features = len(data[0])
-  for col in range(0, num_features):
+  feature_cols = get_m_features(data[0], m)
+  print("features: ",feature_cols)
+  for col in feature_cols:
     if np.char.isnumeric(data[0, col]):
       gains.append(info_gain_numerical(data[:, col].astype(float), target))
     else:
@@ -103,6 +106,13 @@ def find_best_feature(data: ndarray, target: List) -> (int, float):
   print(gains)
   best_gain = max(gains)
   return gains.index(best_gain), best_gain
+
+def get_m_features(row, m):
+    available_features = [i for i in range(len(row))]
+    if(len(row) <= m):
+      return available_features
+    else:
+      return random.sample(available_features, m)
 
 def most_frequent(target: List):
   return mode(target)
@@ -135,15 +145,15 @@ class DecisionTree:
     self._y: List = []
     self._root: Union[DecisionNode, DecisionLeaf] = None
 
-  def build(self, x: ndarray, y: List, features_type: Dict[str, FeatureType]):
+  def build(self, x: ndarray, y: List, features_type: Dict[str, FeatureType], m: int):
     self._x = x
     self._y = y
     self.features = list(features_type.keys())
     self.features_type = features_type
 
-    self._root = self._build(self._x, self._y, list(self.features), "<root>")
+    self._root = self._build(self._x, self._y, list(self.features), "<root>", m)
 
-  def _build(self, x , y, features: List, question):
+  def _build(self, x , y, features: List, question, m):
     # All examples are of the same class
     if (entropy(y) == 0.0):
       return DecisionLeaf(y[0], len(y), question)
@@ -153,7 +163,7 @@ class DecisionTree:
       return DecisionLeaf(most_frequent(y), len(y), question)
 
     # Get best feature to split
-    best_col, best_gain = find_best_feature(x, y)
+    best_col, best_gain = find_best_feature(x, y, m)
 
     # Give best feature to node
     node: DecisionNode = DecisionNode(best_col, features[best_col], best_gain, question)
@@ -174,7 +184,7 @@ class DecisionTree:
         #node.add_child(DecisionLeaf(most_frequent(new_y), len(new_y), value))
         return DecisionLeaf(most_frequent(new_y), len(new_y), value)
       else:
-        node.add_child(self._build(new_x, new_y, list(features), value))
+        node.add_child(self._build(new_x, new_y, list(features), value, m))
 
     return node
 
@@ -207,17 +217,20 @@ class DecisionTree:
     split["<" + str(mean_value)] = (new_x, new_y)
 
     return split
+  
+  
 
-x = data2[:,0:4]
-y = data2[:, 4]
+
+x = data[:,0:4]
+y = data[:, 4]
 tree = DecisionTree()
 features_and_types = {
   "Tempo": FeatureType.CATEGORICAL,
   "Temperatura": FeatureType.CATEGORICAL,
-  "Umidade": FeatureType.NUMERICAL,
+  "Umidade": FeatureType.CATEGORICAL,
   "Ventoso": FeatureType.CATEGORICAL
 }
-tree.build(x, y, features_and_types)
+tree.build(x, y, features_and_types, 1)
 print(len(tree._root.children))
 
 
