@@ -102,7 +102,8 @@ def find_best_feature(data: ndarray, target: List) -> (int, float):
       gains.append(info_gain(data[:, col], target))
   print(gains)
   best_gain = max(gains)
-  return gains.index(best_gain), best_gain
+  best_col = gains.index(best_gain)
+  return best_col, best_gain
 
 def most_frequent(target: List):
   return mode(target)
@@ -113,12 +114,26 @@ class DecisionLeaf:
     self.count = count
     self.feature = feature
 
+class DecisionTest:
+  def __init__(self, value, column: int):
+    self.column = column
+    self.value = value
+
+
+  def test(self, instance: List) -> bool:
+    if len(instance)-1 > self.column:
+      return False
+    if np.char.isnumeric(self.value):
+      return self.value >= instance[self.column]
+    else:
+      return self.value == instance[self.column]
+
 class DecisionNode:
-  def __init__(self, col: int, label: str, gain: float, feature: str):
-    self.col = col
+  def __init__(self, label: str, gain: float, feature: str, test: DecisionTest):
     self.label = label
     self.gain = gain
     self.feature = feature
+    self.test = test
     self.children: List[Union['DecisionNode', DecisionLeaf]] = []
 
   def add_child(self, child: Union['DecisionNode', DecisionLeaf]):
@@ -155,8 +170,9 @@ class DecisionTree:
     # Get best feature to split
     best_col, best_gain = find_best_feature(x, y)
 
-    # Give best feature to node
-    node: DecisionNode = DecisionNode(best_col, features[best_col], best_gain, question)
+    # Give best feature to node AND
+    #test = DecisionTest(self.features.index(features[best_col]), )
+    node: DecisionNode = DecisionNode(features[best_col], best_gain, question)
 
     # Split data for the possible values of the best feature
     if self.features_type[features[best_col]] == FeatureType.CATEGORICAL:
