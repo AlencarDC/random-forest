@@ -94,18 +94,20 @@ def info_gain_numerical(rows: List, targets: List) -> float:
 # Assumes that categorical features are string values and numerical features are int or float
 def find_best_feature(data: ndarray, target: List, m:int) -> (int, float):
   gains = []
+  col_gains = []
 
   num_features = len(data[0])
   feature_cols = get_m_features(data[0], m)
   print("features: ",feature_cols)
   for col in feature_cols:
+    col_gains.append(col)
     if np.char.isnumeric(data[0, col]):
       gains.append(info_gain_numerical(data[:, col].astype(float), target))
     else:
       gains.append(info_gain(data[:, col], target))
   print(gains)
   best_gain = max(gains)
-  return gains.index(best_gain), best_gain
+  return col_gains[gains.index(best_gain)], best_gain
 
 def get_m_features(row, m):
     available_features = [i for i in range(len(row))]
@@ -150,7 +152,7 @@ class DecisionTree:
     self._y = y
     self.features = list(features_type.keys())
     self.features_type = features_type
-
+    print(self.features)
     self._root = self._build(self._x, self._y, list(self.features), "<root>", m)
 
   def _build(self, x , y, features: List, question, m):
@@ -164,7 +166,6 @@ class DecisionTree:
 
     # Get best feature to split
     best_col, best_gain = find_best_feature(x, y, m)
-
     # Give best feature to node
     node: DecisionNode = DecisionNode(best_col, features[best_col], best_gain, question)
 
