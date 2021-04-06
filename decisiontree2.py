@@ -133,12 +133,12 @@ class DecisionTest:
     self.expect = expect
 
   def test(self, instance: List) -> bool:
-    if len(instance)-1 > self.column:
+    if len(instance)-1 < self.column:
       return False
     if isinstance(self.value, int) or isinstance(self.value, float):
-      return self.value >= instance[self.column] == self.expect
+      return (instance[self.column] >= self.value) == self.expect
     else:
-      return self.value == instance[self.column] == self.expect
+      return (instance[self.column] == self.value) == self.expect
 
 class DecisionLeaf:
   def __init__(self, predict: str, count: int):
@@ -211,6 +211,20 @@ class DecisionTree:
         node.add_child(test, self._build(new_x, new_y, list(features)))
 
     return node
+
+  def predict(self, row: List):
+    return self._predict(row, self._root)
+
+  def _predict(self, row: List, node):
+    if isinstance(node, DecisionLeaf):
+      return node.predict
+
+    for child in node.children:
+      test, child_node = child
+      if test.test(row) == True:
+        return self._predict(row, child_node)
+
+    return None
 
 
 
@@ -285,8 +299,9 @@ data2 = [
   ["Chuvoso","Amena",110,"Verdadeiro","Nao"]
 ]
 
-x = remove_column(data, 4)
-y = column(data, 4)
+x = remove_column(data2, 4)
+y = column(data2, 4)
 tree = DecisionTree()
 tree.build(x, y, ["Tempo","Temperatura","Umidade","Ventoso"])
 plot_tree(tree)
+print(tree.predict(["Chuvoso","Fria",150,"Falso"]))
