@@ -110,17 +110,16 @@ class DecisionTree:
 
     return None
 
+  def plot_tree(self):
+    graph = "digraph G {\n"
+    graph += "node [shape=box,style=bold]\n"
+    graph += "edge [fontsize=10]\n"
+    new_nodes, _ = plot_node(self._root, 0)
+    graph += new_nodes
+    graph += "}"
+    print(graph) 
 
-########### PLOT TREE ############
 
-def plot_tree(tree: DecisionTree):
-  graph = "digraph G {\n"
-  graph += "node [shape=box,style=bold]\n"
-  graph += "edge [fontsize=10]\n"
-  new_nodes, _ = plot_node(tree._root, 0)
-  graph += new_nodes
-  graph += "}"
-  print(graph)
 
 def plot_node(node: Union[DecisionNode, DecisionLeaf], num: int) -> (str, int):
   if (isinstance(node, DecisionLeaf) == True):

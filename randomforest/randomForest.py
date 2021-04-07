@@ -1,5 +1,5 @@
 from bootstrap import get_bootstrap
-from decisiontree import DecisionTree, FeatureType
+from tree import DecisionTree
 import math
 import numpy as np
 from numpy import ndarray
@@ -23,24 +23,28 @@ data = np.array([
 
 x = data[:,0:4]
 y = data[:, 4]
+features = ["Tempo","Temperatura","Umidade","Ventoso"]
 
-features_and_types = {
-  "Tempo": FeatureType.CATEGORICAL,
-  "Temperatura": FeatureType.CATEGORICAL,
-  "Umidade": FeatureType.CATEGORICAL,
-  "Ventoso": FeatureType.CATEGORICAL
-}
+class RandomForest:
+    def __init__(self, num_trees):
+        self.num_trees = num_trees
+        self.trees = []
 
-def train_forest(x, y, num_trees, features_and_types):
-    trees = []
-    m_attributes = int(math.sqrt(len(x[0])))
-    print("M attributes: ", m_attributes)
-    for i in range(num_trees):
-        tree = DecisionTree()
-        training_set = get_bootstrap(x,y)
-        tree.build(training_set[0], training_set[1], features_and_types, m_attributes)
-        trees.append(tree)
+    def train(self, x, y, features):
+        m_attributes = int(math.sqrt(len(x[0])))
+        
+        for i in range(self.num_trees):
+            tree = DecisionTree()
+            training_set = get_bootstrap(x,y)
+            tree.build(training_set[0], training_set[1], features, m_attributes)
+            self.trees.append(tree)
 
-    return trees
 
-trees = train_forest(x,y,2,features_and_types)
+
+
+if __name__ == "__main__":
+    randomForest = RandomForest(2)
+    randomForest.train(x,y,features)
+
+    randomForest.trees[0].plot_tree()
+    randomForest.trees[1].plot_tree()
