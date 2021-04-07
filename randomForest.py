@@ -1,4 +1,6 @@
-import random
+from bootstrap import get_bootstrap
+from decisiontree import DecisionTree, FeatureType
+import math
 import numpy as np
 from numpy import ndarray
 
@@ -19,24 +21,26 @@ data = np.array([
   ["Chuvoso","Amena","Alta","Verdadeiro","Nao"]
 ])
 
-def get_bootstrap(x,y):
-    len_x = len(x)
+x = data[:,0:4]
+y = data[:, 4]
 
-    bootstrap_x = []
-    bootstrap_y = []
-    
-    for i in range(len_x):
-        sample_i = random.randint(0, len_x - 1)
-        bootstrap_x.append(x[sample_i])
-        bootstrap_y.append(y[sample_i])
+features_and_types = {
+  "Tempo": FeatureType.CATEGORICAL,
+  "Temperatura": FeatureType.CATEGORICAL,
+  "Umidade": FeatureType.CATEGORICAL,
+  "Ventoso": FeatureType.CATEGORICAL
+}
 
-    return (bootstrap_x, bootstrap_y)
+def train_forest(x, y, num_trees, features_and_types):
+    trees = []
+    m_attributes = int(math.sqrt(len(x[0])))
+    print("M attributes: ", m_attributes)
+    for i in range(num_trees):
+        tree = DecisionTree()
+        training_set = get_bootstrap(x,y)
+        tree.build(training_set[0], training_set[1], features_and_types, m_attributes)
+        trees.append(tree)
 
-if __name__ == "__main__":
-  x = data[:,0:4]
-  y = data[:, 4]
-  bootstrap = get_bootstrap(x,y)
-  print(bootstrap[0])
-  print(bootstrap[1])
+    return trees
 
-
+trees = train_forest(x,y,2,features_and_types)
