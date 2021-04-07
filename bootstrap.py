@@ -30,7 +30,7 @@ def get_bootstrap(x,y):
         bootstrap_x.append(x[sample_i])
         bootstrap_y.append(y[sample_i])
 
-    return (bootstrap_x, bootstrap_y)
+    return (np.array(bootstrap_x), np.array(bootstrap_y))
 
 if __name__ == "__main__":
   x = data[:,0:4]
