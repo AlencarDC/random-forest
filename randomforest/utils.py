@@ -2,6 +2,7 @@ import math
 from collections import Counter
 from statistics import mode, mean
 from typing import Union, List, Dict, Tuple
+import random
 
 
 def column(matrix, column) -> List:
