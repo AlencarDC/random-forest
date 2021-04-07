@@ -77,14 +77,14 @@ def find_best_feature(data: List[List], target: List, m: int) -> (int, float):
   cols_used = []
 
   feature_cols = get_m_features(data[0], m)
-  print("features: ",feature_cols)
+  
   for col in feature_cols:
     cols_used.append(col)
     if isinstance(data[0][col], int) or isinstance(data[0][col], float):
       gains.append(info_gain_numerical(column(data, col), target))
     else:
       gains.append(info_gain_categorical(column(data, col), target))
-  print(gains)
+  
   best_gain = max(gains)
   best_col = cols_used[gains.index(best_gain)]
   return best_col, best_gain
