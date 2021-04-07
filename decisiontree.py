@@ -98,14 +98,13 @@ def find_best_feature(data: ndarray, target: List, m:int) -> (int, float):
 
   num_features = len(data[0])
   feature_cols = get_m_features(data[0], m)
-  print("features: ",feature_cols)
   for col in feature_cols:
     cols_used.append(col)
     if np.char.isnumeric(data[0, col]):
       gains.append(info_gain_numerical(data[:, col].astype(float), target))
     else:
       gains.append(info_gain(data[:, col], target))
-  print(gains)
+ 
   best_gain = max(gains)
   return cols_used[gains.index(best_gain)], best_gain
 
@@ -152,7 +151,6 @@ class DecisionTree:
     self._y = y
     self.features = list(features_type.keys())
     self.features_type = features_type
-    print(self.features)
     self._root = self._build(self._x, self._y, list(self.features), "<root>", m)
 
   def _build(self, x , y, features: List, question, m):
@@ -219,22 +217,6 @@ class DecisionTree:
 
     return split
   
-  
-
-
-x = data[:,0:4]
-y = data[:, 4]
-tree = DecisionTree()
-features_and_types = {
-  "Tempo": FeatureType.CATEGORICAL,
-  "Temperatura": FeatureType.CATEGORICAL,
-  "Umidade": FeatureType.CATEGORICAL,
-  "Ventoso": FeatureType.CATEGORICAL
-}
-tree.build(x, y, features_and_types, 1)
-print(len(tree._root.children))
-
-
 def print_tree(node, spacing):
   if (isinstance(node, DecisionNode) == True):
     print(spacing + "->" + node.label + "[" + node.feature + "] with " + str(node.gain))
@@ -274,5 +256,18 @@ def plot_node(node: Union[DecisionNode, DecisionLeaf], num: int) -> (str, int):
 
 
 #print_tree(tree._root, "")
-plot_tree(tree)
+
+if __name__ == "__main__":
+  x = data[:,0:4]
+  y = data[:, 4]
+  tree = DecisionTree()
+  features_and_types = {
+    "Tempo": FeatureType.CATEGORICAL,
+    "Temperatura": FeatureType.CATEGORICAL,
+    "Umidade": FeatureType.CATEGORICAL,
+    "Ventoso": FeatureType.CATEGORICAL
+  }
+  tree.build(x, y, features_and_types, 4)
+  print(len(tree._root.children))
+  plot_tree(tree)
 
