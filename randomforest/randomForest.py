@@ -3,6 +3,8 @@ from tree import DecisionTree
 import math
 import numpy as np
 from numpy import ndarray
+from collections import Counter
+from typing import List
 
 data = np.array([
   ["Ensolarado","Quente","Alta","Falso","Nao"],
@@ -38,13 +40,22 @@ class RandomForest:
             training_set = get_bootstrap(x,y)
             tree.build(training_set[0], training_set[1], features, m_attributes)
             self.trees.append(tree)
+    
+    def predict(self, row: List):
+        votes = []
 
+        for tree in self.trees:
+            new_vote = tree.predict(row)
+            votes.append(new_vote)
+        
+        vote_count = Counter(votes)
 
+        return vote_count.most_common(1)[0][0]
 
 
 if __name__ == "__main__":
-    randomForest = RandomForest(2)
+    randomForest = RandomForest(40)
     randomForest.train(x,y,features)
 
-    randomForest.trees[0].plot_tree()
-    randomForest.trees[1].plot_tree()
+    print("Expected: Nao | Actual:", randomForest.predict(["Ensolarado","Quente","Alta","Falso"]))
+    print("Expected: Sim | Actual:", randomForest.predict(["Chuvoso","Amena","Alta","Falso"]))
