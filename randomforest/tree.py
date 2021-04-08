@@ -1,7 +1,7 @@
 from typing import Union, List, Dict, Tuple
 from enum import Enum
-from utils import entropy, find_best_feature, most_frequent
-from utils import split_categorical, split_numerical
+from .utils import entropy, find_best_feature, most_frequent
+from .utils import split_categorical, split_numerical
 
 class DecisionTest:
   def __init__(self, value, column: int, expect=True):
@@ -117,7 +117,7 @@ class DecisionTree:
     new_nodes, _ = plot_node(self._root, 0)
     graph += new_nodes
     graph += "}"
-    print(graph) 
+    print(graph)
 
 
 
