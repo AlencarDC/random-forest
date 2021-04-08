@@ -1,18 +1,14 @@
 import pandas
 from pathlib import Path
 
-def get_csv_data(filepath, target_col="target", separator=","):
+def get_csv_data(filepath, separator=","):
   file_data = pandas.read_csv(filepath, sep=separator)
 
   # Get a list of instances (lists of attributes)
-  only_attrs = file_data.drop([target_col], axis=1)
-  attributes = only_attrs.values
-  headers = only_attrs.columns.values
+  instances = file_data.values.tolist()
+  headers = file_data.columns.values.tolist()
 
-  # Get list of the expected values for the attributes classification
-  targets = [target[0] for target in file_data[[target_col]].values]
-
-  return (attributes, targets, headers)
+  return (instances, headers)
 
 def save_csv_file(filepath, data_set):
   output_path = Path(filepath)
