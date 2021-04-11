@@ -4,12 +4,14 @@ import statistics
 
 FILE_PATH = "vote.tsv"
 CSV_SEPARATOR = "\t"
+TARGET_COL = "target"
 SEED = 42
 K_FOLDS = 10
 N_TREES = 3
 
-data, features = get_csv_data(FILE_PATH, CSV_SEPARATOR)
+data, features = get_csv_data(FILE_PATH, TARGET_COL, CSV_SEPARATOR)
 
+# Feature types of wine vote dataset
 feature_types = {
   "handicapped infants": FeatureType.CATEGORICAL,
   "water project cost sharing": FeatureType.CATEGORICAL,
@@ -28,6 +30,23 @@ feature_types = {
   "duty free exports": FeatureType.CATEGORICAL,
   "export administration act south africa": FeatureType.CATEGORICAL
 }
+
+# Feature types of wine recognition dataset
+# feature_types = {
+#   "1": FeatureType.NUMERICAL,
+#   "2": FeatureType.NUMERICAL,
+#   "3": FeatureType.NUMERICAL,
+#   "4": FeatureType.NUMERICAL,
+#   "5": FeatureType.NUMERICAL,
+#   "6": FeatureType.NUMERICAL,
+#   "7": FeatureType.NUMERICAL,
+#   "8": FeatureType.NUMERICAL,
+#   "9": FeatureType.NUMERICAL,
+#   "10": FeatureType.NUMERICAL,
+#   "11": FeatureType.NUMERICAL,
+#   "12": FeatureType.NUMERICAL,
+#   "13": FeatureType.NUMERICAL
+# }
 
 # Transform categorical features in strings
 n_features = len(data[0])-1
