@@ -4,6 +4,8 @@ import random
 from randomforest import forest
 from randomforest.utils import remove_column, column, unique_values
 
+from csv_handler import save_csv_file
+
 class FeatureType(Enum):
   CATEGORICAL = 0
   NUMERICAL = 1
@@ -56,10 +58,10 @@ def kfold(k: int, data: List, features: List, n_trees=41, seed=42) -> List:
     rf.train(x, y, features)
 
     # Run prediction over testing fold
-    x_testing = remove_column(training_folds, target_column)
-    y_testing = column(training_folds, target_column)
+    x_testing = remove_column(testing_fold, target_column)
+    y_testing = column(testing_fold, target_column)
 
-    total_predictions = len(training_folds)
+    total_predictions = len(testing_fold)
     right_preditions = 0
     for j in range(total_predictions):
       predicted = rf.predict(x_testing[j])

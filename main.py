@@ -82,7 +82,7 @@ def reports_wine():
   FILE_PATH = "wine-recognition.tsv"
   CSV_SEPARATOR = "\t"
   TARGET_COL = "target"
-  SEED = 42
+  SEED = 12421
   K_FOLDS = 10
 
   data, features = get_csv_data(FILE_PATH, TARGET_COL, CSV_SEPARATOR)
