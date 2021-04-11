@@ -44,12 +44,12 @@ class DecisionTree:
     self._root: Union[DecisionNode, DecisionLeaf] = None
 
 
-  def build(self, x: List[List], y: List, features: List[str]):
+  def build(self, x: List[List], y: List, features: List[str], seed=42):
     self._x = x
     self._y = y
     self.features = features
 
-    self._root = self._build(self._x, self._y, list(self.features))
+    self._root = self._build(self._x, self._y, list(self.features), seed=42)
 
 
   def _build(self, x: List[List] , y: List, features: List):
@@ -62,7 +62,7 @@ class DecisionTree:
       return DecisionLeaf(most_frequent(y), len(y))
 
     # Get best feature to split
-    best_col, best_gain = find_best_feature(x, y)
+    best_col, best_gain = find_best_feature(x, y, seed)
 
     # Give best feature to node
     node: DecisionNode = DecisionNode(features[best_col], best_gain)
@@ -90,7 +90,7 @@ class DecisionTree:
           test = DecisionTest(value, feature_column)
         else:
           test = DecisionTest(mean_value, feature_column, value)
-        node.add_child(test, self._build(new_x, new_y, list(features)))
+        node.add_child(test, self._build(new_x, new_y, list(features), seed))
 
     return node
 

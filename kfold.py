@@ -1,7 +1,12 @@
 from typing import List
+from enum import Enum
 import random
 from randomforest import forest
 from randomforest.utils import remove_column, column
+
+class FeatureType(Enum):
+  CATEGORICAL = 0
+  NUMERICAL = 1
 
 def get_kfolds(k: int, data: List, shuffle=False, seed=42) -> List:
   if shuffle == True:
@@ -23,7 +28,7 @@ def get_kfolds(k: int, data: List, shuffle=False, seed=42) -> List:
   return folds
 
 
-def kfold(k: int, data: List, features: List, n_trees=41) -> List:
+def kfold(k: int, data: List, features: List, n_trees=41, seed=42) -> List:
   folds = get_kfolds(k, data)
   results = []
 
@@ -42,7 +47,7 @@ def kfold(k: int, data: List, features: List, n_trees=41) -> List:
 
     # Create Random Forest model
     rf = forest.RandomForest(n_trees)
-    rf.train(x, y, features)
+    rf.train(x, y, features, seed)
 
     # Run prediction over testing fold
     x_testing = remove_column(training_folds, target_column)

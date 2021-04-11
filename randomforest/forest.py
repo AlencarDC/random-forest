@@ -31,13 +31,13 @@ class RandomForest:
     self.num_trees = num_trees
     self.trees = []
 
-  def train(self, x, y, features):
+  def train(self, x, y, features, seed=42):
     m_attributes = int(math.sqrt(len(x[0])))
 
     for i in range(self.num_trees):
       tree = DecisionTree()
-      training_set = get_bootstrap(x,y)
-      tree.build(training_set[0], training_set[1], features, m_attributes)
+      training_set = get_bootstrap(x,y, seed)
+      tree.build(training_set[0], training_set[1], features, m_attributes, seed)
       self.trees.append(tree)
 
   def predict(self, row: List):
