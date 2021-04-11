@@ -1,5 +1,6 @@
 from kfold import kfold, FeatureType
 from csv_handler import get_csv_data
+import random
 import statistics
 
 FILE_PATH = "vote.tsv"
@@ -57,6 +58,7 @@ for col in range(n_features):
 
 
 n_trees_test = [1, 5, 10, 25, 50]
+random.seed(SEED)
 
 for n_tree in n_trees_test:
   print("Accuracies:")
