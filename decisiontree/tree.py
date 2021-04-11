@@ -1,8 +1,8 @@
 from typing import Union, List, Dict, Tuple
 from enum import Enum
-import numpy as np
 from utils import entropy, find_best_feature, most_frequent
 from utils import split_categorical, split_numerical
+from utils import column, remove_column
 
 class DecisionTest:
   def __init__(self, value, column: int, expect=True):
@@ -147,25 +147,25 @@ def plot_node(node: Union[DecisionNode, DecisionLeaf], num: int) -> (str, int):
   return dot_node, num
 
 if __name__ == "__main__":
-  data = np.array([
-  ["Ensolarado","Quente","Alta","Falso","Nao"],
-  ["Ensolarado","Quente","Alta","Verdadeiro","Nao"],
-  ["Nublado","Quente","Alta","Falso","Sim"],
-  ["Chuvoso","Amena","Alta","Falso","Sim"],
-  ["Chuvoso","Fria","Normal","Falso","Sim"],
-  ["Chuvoso","Fria","Normal","Verdadeiro","Nao"],
-  ["Nublado","Fria","Normal","Verdadeiro","Sim"],
-  ["Ensolarado","Amena","Alta","Falso","Nao"],
-  ["Ensolarado","Fria","Normal","Falso","Sim"],
-  ["Chuvoso","Amena","Normal","Falso","Sim"],
-  ["Ensolarado","Amena","Normal","Verdadeiro","Sim"],
-  ["Nublado","Amena","Alta","Verdadeiro","Sim"],
-  ["Nublado","Quente","Normal","Falso","Sim"],
-  ["Chuvoso","Amena","Alta","Verdadeiro","Nao"]
-])
+  data = [
+    ["Ensolarado","Quente","Alta","Falso","Nao"],
+    ["Ensolarado","Quente","Alta","Verdadeiro","Nao"],
+    ["Nublado","Quente","Alta","Falso","Sim"],
+    ["Chuvoso","Amena","Alta","Falso","Sim"],
+    ["Chuvoso","Fria","Normal","Falso","Sim"],
+    ["Chuvoso","Fria","Normal","Verdadeiro","Nao"],
+    ["Nublado","Fria","Normal","Verdadeiro","Sim"],
+    ["Ensolarado","Amena","Alta","Falso","Nao"],
+    ["Ensolarado","Fria","Normal","Falso","Sim"],
+    ["Chuvoso","Amena","Normal","Falso","Sim"],
+    ["Ensolarado","Amena","Normal","Verdadeiro","Sim"],
+    ["Nublado","Amena","Alta","Verdadeiro","Sim"],
+    ["Nublado","Quente","Normal","Falso","Sim"],
+    ["Chuvoso","Amena","Alta","Verdadeiro","Nao"]
+  ]
   features = ["Tempo","Temperatura","Umidade","Ventoso"]
-  x = data[:,0:4]
-  y = data[:, 4]
+  x = remove_column(data, 4)
+  y = column(4)
 
   tree = DecisionTree()
   tree.build(x, y, features)
