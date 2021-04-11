@@ -49,21 +49,56 @@ feature_types = {
 #   "13": FeatureType.NUMERICAL
 # }
 
-# Transform categorical features in strings
-n_features = len(data[0])-1
-for col in range(n_features):
-  if (feature_types[features[col]] == FeatureType.CATEGORICAL):
-    for instance in data:
-      instance[col] = str(instance[col])
 
 
-n_trees_test = [1, 5, 10, 25, 50]
-random.seed(SEED)
 
-for n_tree in n_trees_test:
-  print("Accuracies:")
-  accuracies = kfold(K_FOLDS, data, features, n_trees=n_tree, seed=SEED)
-  print(statistics.mean(accuracies))
-  print(statistics.stdev(accuracies))
+def reports_vote():
+  FILE_PATH = "vote.tsv"
+  CSV_SEPARATOR = "\t"
+  TARGET_COL = "target"
+  SEED = 42
+  K_FOLDS = 10
+
+  data, features = get_csv_data(FILE_PATH, TARGET_COL, CSV_SEPARATOR)
+
+  # Feature types of vote dataset
+  feature_types = {
+    "handicapped infants": FeatureType.CATEGORICAL,
+    "water project cost sharing": FeatureType.CATEGORICAL,
+    "adoption of the budget resolution": FeatureType.CATEGORICAL,
+    "physician fee freeze": FeatureType.CATEGORICAL,
+    "el salvador aid": FeatureType.CATEGORICAL,
+    "religious groups in schools": FeatureType.CATEGORICAL,
+    "anti satellite test ban": FeatureType.CATEGORICAL,
+    "aid to nicaraguan contras": FeatureType.CATEGORICAL,
+    "mx missile": FeatureType.CATEGORICAL,
+    "immigration": FeatureType.CATEGORICAL,
+    "synfuels corporation cutback": FeatureType.CATEGORICAL,
+    "education spending": FeatureType.CATEGORICAL,
+    "superfund right to sue": FeatureType.CATEGORICAL,
+    "crime": FeatureType.CATEGORICAL,
+    "duty free exports": FeatureType.CATEGORICAL,
+    "export administration act south africa": FeatureType.CATEGORICAL
+  }
+
+  # Transform categorical features in strings
+  n_features = len(data[0])-1
+  for col in range(n_features):
+    if (feature_types[features[col]] == FeatureType.CATEGORICAL):
+      for instance in data:
+        instance[col] = str(instance[col])
+
+
+  n_trees_test = [1, 5, 10, 25, 50]
+  random.seed(SEED)
+  print("------- Report accuracy vote ---------")
+  for n_tree in n_trees_test:
+    print("\nNúmero de árvores: ", n_tree)
+    accuracies = kfold(K_FOLDS, data, features, n_trees=n_tree, seed=SEED)
+    print("Média: ", statistics.mean(accuracies))
+    print("Desvio Padrão: ", statistics.stdev(accuracies))
+
+reports_vote()
+
 
 
