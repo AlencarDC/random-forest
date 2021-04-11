@@ -55,8 +55,13 @@ for col in range(n_features):
     for instance in data:
       instance[col] = str(instance[col])
 
-print("Accuracies:")
-accuracies = kfold(K_FOLDS, data, features, n_trees=N_TREES, seed=SEED)
-print(accuracies)
-print(statistics.mean(accuracies))
-print(statistics.stdev(accuracies))
+
+n_trees_test = [1, 5, 10, 25, 50]
+
+for n_tree in n_trees_test:
+  print("Accuracies:")
+  accuracies = kfold(K_FOLDS, data, features, n_trees=n_tree, seed=SEED)
+  print(statistics.mean(accuracies))
+  print(statistics.stdev(accuracies))
+
+
