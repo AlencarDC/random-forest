@@ -1,7 +1,8 @@
 from typing import Union, List, Dict, Tuple
 from enum import Enum
-from decisiontree.utils import entropy, find_best_feature, most_frequent
-from decisiontree.utils import split_categorical, split_numerical
+import numpy as np
+from utils import entropy, find_best_feature, most_frequent
+from utils import split_categorical, split_numerical
 
 class DecisionTest:
   def __init__(self, value, column: int, expect=True):
@@ -44,12 +45,12 @@ class DecisionTree:
     self._root: Union[DecisionNode, DecisionLeaf] = None
 
 
-  def build(self, x: List[List], y: List, features: List[str], seed=42):
+  def build(self, x: List[List], y: List, features: List[str]):
     self._x = x
     self._y = y
     self.features = features
 
-    self._root = self._build(self._x, self._y, list(self.features), seed=42)
+    self._root = self._build(self._x, self._y, list(self.features))
 
 
   def _build(self, x: List[List] , y: List, features: List):
@@ -62,7 +63,7 @@ class DecisionTree:
       return DecisionLeaf(most_frequent(y), len(y))
 
     # Get best feature to split
-    best_col, best_gain = find_best_feature(x, y, seed)
+    best_col, best_gain = find_best_feature(x, y)
 
     # Give best feature to node
     node: DecisionNode = DecisionNode(features[best_col], best_gain)
@@ -90,7 +91,7 @@ class DecisionTree:
           test = DecisionTest(value, feature_column)
         else:
           test = DecisionTest(mean_value, feature_column, value)
-        node.add_child(test, self._build(new_x, new_y, list(features), seed))
+        node.add_child(test, self._build(new_x, new_y, list(features)))
 
     return node
 
@@ -144,3 +145,28 @@ def plot_node(node: Union[DecisionNode, DecisionLeaf], num: int) -> (str, int):
       dot_node += dot
 
   return dot_node, num
+
+if __name__ == "__main__":
+  data = np.array([
+  ["Ensolarado","Quente","Alta","Falso","Nao"],
+  ["Ensolarado","Quente","Alta","Verdadeiro","Nao"],
+  ["Nublado","Quente","Alta","Falso","Sim"],
+  ["Chuvoso","Amena","Alta","Falso","Sim"],
+  ["Chuvoso","Fria","Normal","Falso","Sim"],
+  ["Chuvoso","Fria","Normal","Verdadeiro","Nao"],
+  ["Nublado","Fria","Normal","Verdadeiro","Sim"],
+  ["Ensolarado","Amena","Alta","Falso","Nao"],
+  ["Ensolarado","Fria","Normal","Falso","Sim"],
+  ["Chuvoso","Amena","Normal","Falso","Sim"],
+  ["Ensolarado","Amena","Normal","Verdadeiro","Sim"],
+  ["Nublado","Amena","Alta","Verdadeiro","Sim"],
+  ["Nublado","Quente","Normal","Falso","Sim"],
+  ["Chuvoso","Amena","Alta","Verdadeiro","Nao"]
+])
+  features = ["Tempo","Temperatura","Umidade","Ventoso"]
+  x = data[:,0:4]
+  y = data[:, 4]
+
+  tree = DecisionTree()
+  tree.build(x, y, features)
+  plot_tree(tree)
