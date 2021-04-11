@@ -135,5 +135,4 @@ def get_m_features(row, m, seed=42):
   if(len(row) <= m):
     return available_features
   else:
-    random.seed(seed)
     return random.sample(available_features, m)

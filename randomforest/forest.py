@@ -53,7 +53,7 @@ class RandomForest:
 
 
 if __name__ == "__main__":
-  randomForest = RandomForest(40)
+  randomForest = RandomForest(1)
   randomForest.train(x,y,features)
 
   print("Expected: Nao | Actual:", randomForest.predict(["Ensolarado","Quente","Alta","Falso"]))
