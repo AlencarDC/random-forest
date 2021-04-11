@@ -32,26 +32,6 @@ feature_types = {
   "export administration act south africa": FeatureType.CATEGORICAL
 }
 
-# Feature types of wine recognition dataset
-# feature_types = {
-#   "1": FeatureType.NUMERICAL,
-#   "2": FeatureType.NUMERICAL,
-#   "3": FeatureType.NUMERICAL,
-#   "4": FeatureType.NUMERICAL,
-#   "5": FeatureType.NUMERICAL,
-#   "6": FeatureType.NUMERICAL,
-#   "7": FeatureType.NUMERICAL,
-#   "8": FeatureType.NUMERICAL,
-#   "9": FeatureType.NUMERICAL,
-#   "10": FeatureType.NUMERICAL,
-#   "11": FeatureType.NUMERICAL,
-#   "12": FeatureType.NUMERICAL,
-#   "13": FeatureType.NUMERICAL
-# }
-
-
-
-
 def reports_vote():
   FILE_PATH = "vote.tsv"
   CSV_SEPARATOR = "\t"
@@ -98,7 +78,43 @@ def reports_vote():
     print("Média: ", statistics.mean(accuracies))
     print("Desvio Padrão: ", statistics.stdev(accuracies))
 
-reports_vote()
+def reports_wine():
+  FILE_PATH = "wine-recognition.tsv"
+  CSV_SEPARATOR = "\t"
+  TARGET_COL = "target"
+  SEED = 42
+  K_FOLDS = 10
 
+  data, features = get_csv_data(FILE_PATH, TARGET_COL, CSV_SEPARATOR)
+
+  #Feature types of wine recognition dataset
+  feature_types = {
+    "1": FeatureType.NUMERICAL,
+    "2": FeatureType.NUMERICAL,
+    "3": FeatureType.NUMERICAL,
+    "4": FeatureType.NUMERICAL,
+    "5": FeatureType.NUMERICAL,
+    "6": FeatureType.NUMERICAL,
+    "7": FeatureType.NUMERICAL,
+    "8": FeatureType.NUMERICAL,
+    "9": FeatureType.NUMERICAL,
+    "10": FeatureType.NUMERICAL,
+    "11": FeatureType.NUMERICAL,
+    "12": FeatureType.NUMERICAL,
+    "13": FeatureType.NUMERICAL
+  }
+
+  n_trees_test = [1, 5, 10, 25, 50]
+  random.seed(SEED)
+  print("------- Report accuracy wine ---------")
+  for n_tree in n_trees_test:
+    print("\nNúmero de árvores: ", n_tree)
+    accuracies = kfold(K_FOLDS, data, features, n_trees=n_tree, seed=SEED)
+    print("Média: ", statistics.mean(accuracies))
+    print("Desvio Padrão: ", statistics.stdev(accuracies))
+
+
+#reports_vote()
+reports_wine()
 
 
