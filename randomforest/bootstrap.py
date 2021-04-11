@@ -1,6 +1,6 @@
 import random
 
-def get_bootstrap(x,y, seed=42):
+def get_bootstrap(x,y):
   len_x = len(x)
 
   bootstrap_x = []

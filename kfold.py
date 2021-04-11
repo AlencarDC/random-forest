@@ -2,33 +2,40 @@ from typing import List
 from enum import Enum
 import random
 from randomforest import forest
-from randomforest.utils import remove_column, column
+from randomforest.utils import remove_column, column, unique_values
 
 class FeatureType(Enum):
   CATEGORICAL = 0
   NUMERICAL = 1
 
-def get_kfolds(k: int, data: List, shuffle=False, seed=42) -> List:
+def get_kfolds(k: int, data: List, shuffle=False) -> List:
   if shuffle == True:
-    random.seed(42)
     random.shuffle(data)
 
-  fold_size = int(len(data) / k)
+  n_columns = len(data[0])
+  # Get possible values for target column
+  possible_values = unique_values(column(data, n_columns-1))
 
-  folds = []
+  # Initialize dict of index of instances per target value
+  stratified_data = {key: [] for key in possible_values}
 
-  first_fold_size = fold_size+len(data) % k
-  folds.append(data[0:first_fold_size])
+  # Divide by indexes of data per target value
+  for idx, instance in enumerate(data):
+    stratified_data[instance[n_columns-1]].append(idx)
 
-  for i in range(k-1):
-    begin = first_fold_size + i * fold_size
-    end = begin + fold_size
-    folds.append(data[begin:end])
+  # Initialize folds
+  folds = [[] for i in range(k)]
+
+  # Create folds
+  for key in stratified_data:
+    for i, idx in enumerate(stratified_data[key]):
+      folds[i % k].append(list(data[idx]))
 
   return folds
 
 
 def kfold(k: int, data: List, features: List, n_trees=41, seed=42) -> List:
+  random.seed(seed)
   folds = get_kfolds(k, data)
   results = []
 
@@ -47,7 +54,7 @@ def kfold(k: int, data: List, features: List, n_trees=41, seed=42) -> List:
 
     # Create Random Forest model
     rf = forest.RandomForest(n_trees)
-    rf.train(x, y, features, seed)
+    rf.train(x, y, features)
 
     # Run prediction over testing fold
     x_testing = remove_column(training_folds, target_column)

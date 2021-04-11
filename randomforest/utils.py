@@ -72,11 +72,11 @@ def info_gain_numerical(rows: List, targets: List) -> float:
   return entropy(targets) - result
 
 # Assumes that categorical features are string values and numerical features are int or float
-def find_best_feature(data: List[List], target: List, m: int, seed=42) -> (int, float):
+def find_best_feature(data: List[List], target: List, m: int) -> (int, float):
   gains = []
   cols_used = []
 
-  feature_cols = get_m_features(data[0], m, seed)
+  feature_cols = get_m_features(data[0], m)
 
   for col in feature_cols:
     cols_used.append(col)
@@ -130,7 +130,7 @@ def split_numerical(old_x, old_y, col: int) -> (Dict[str, Tuple[List, List]], fl
     return (split, mean_value)
 
 
-def get_m_features(row, m, seed=42):
+def get_m_features(row, m):
   available_features = [i for i in range(len(row))]
   if(len(row) <= m):
     return available_features
