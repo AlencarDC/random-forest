@@ -35,7 +35,6 @@ def get_kfolds(k: int, data: List, shuffle=False) -> List:
 
 
 def kfold(k: int, data: List, features: List, n_trees=41, seed=42) -> List:
-  random.seed(seed)
   folds = get_kfolds(k, data)
   results = []
 
